@@ -1,6 +1,6 @@
-import {createViemPublicClient} from "../viem/createViemPublicClient";
-import {createViemWalletClient} from "../viem/createViemWalletClient";
-import {ToolConfig} from "./allTools";
+import {createViemPublicClient} from "../../viem/createViemPublicClient.js";
+import {createViemWalletClient} from "../../viem/createViemWalletClient.js";
+import {ToolConfig} from "../allTools.js";
 
 
 const ERC20_ABI = [] as const;

@@ -3,10 +3,11 @@ import OpenAi from "openai";
 import {Assistant} from 'openai/resources/beta/assistants';
 import {Thread} from 'openai/resources/beta/threads/threads';
 import readline from 'readline';
-import {createAssistant} from "./openai/createAssistant";
-import {createRun} from "./openai/createRun";
-import {createThread} from './openai/createThread';
-import {performRun} from "./openai/performRun";
+import {startServer} from "./api/server.js";
+import {createAssistant} from "./openai/createAssistant.js";
+import {createRun} from "./openai/createRun.js";
+import {createThread} from './openai/createThread.js';
+import {performRun} from "./openai/performRun.js";
 
 const client = new OpenAi();
 
@@ -57,9 +58,17 @@ async function main() {
     try {
         const assistant = await createAssistant(client);
         const thread = await createThread(client);
+
+        // Start the API server
+        const server = startServer();
+        console.log('API server started for frontend communication');
+        
         console.log(`Chat started! Type "exit" to end the conversation.`)
     
         await chat(thread, assistant);
+        
+        // Close the server when chat ends
+        server.close();
     } catch (error) {
         console.error(
             `Error in main: ${error instanceof Error ? error.message : 'Unknown error'}`

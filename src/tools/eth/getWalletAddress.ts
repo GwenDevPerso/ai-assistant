@@ -1,5 +1,5 @@
-import {createViemWalletClient} from '../viem/createViemWalletClient';
-import {ToolConfig} from './allTools';
+import {createViemWalletClient} from '../../viem/createViemWalletClient.js';
+import {ToolConfig} from '../allTools.js';
 
 export const getWalletAddressTool: ToolConfig<{}> = {
     definition: {
