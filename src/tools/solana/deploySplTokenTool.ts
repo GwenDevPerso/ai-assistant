@@ -3,8 +3,9 @@ import {
     getOrCreateAssociatedTokenAccount,
     mintTo
 } from '@solana/spl-token';
+import {Keypair} from '@solana/web3.js';
 import {createSolanaPublicClient} from '../../solana/createSolanaPublicClient.js';
-import {createSolanaWalletClient} from '../../solana/createSolanaWalletClient.js';
+import {createSolanaWalletClient, SolanaWalletClient} from '../../solana/createSolanaWalletClient.js';
 import {ToolConfig} from "../allTools.js";
 
 interface DeploySplTokenArgs {
@@ -44,7 +45,19 @@ export const deploySplTokenTool: ToolConfig<DeploySplTokenArgs> = {
         try {
             // Connect to devnet
             const connection = createSolanaPublicClient();
-            const payer = createSolanaWalletClient();
+            const walletClient: SolanaWalletClient = createSolanaWalletClient();
+            
+            // Vérifier si nous utilisons un wallet Phantom
+            if (walletClient.isPhantomWallet) {
+                throw new Error("This operation requires a server wallet with a private key. Cannot use Phantom wallet for token deployment.");
+            }
+
+            // Créer un payer compatible avec l'API SPL Token
+            if (!walletClient.secretKey) {
+                throw new Error("Missing private key for token deployment");
+            }
+
+            const payer = Keypair.fromSecretKey(walletClient.secretKey);
             
             // Default values
             const tokenDecimals = decimals ?? 9;

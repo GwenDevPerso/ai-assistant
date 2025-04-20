@@ -1,5 +1,4 @@
-import {PublicKey} from '@solana/web3.js';
-import {createSolanaPublicClient} from '../../solana/createSolanaPublicClient.js';
+import {getPhantomWalletBalance} from '../../phantom/phantomWalletTools.js';
 import {ToolConfig} from '../allTools.js';
 
 interface GetSolanaBalanceArgs {
@@ -25,10 +24,6 @@ export const getSolanaBalanceTool: ToolConfig<GetSolanaBalanceArgs> = {
         },
     },
     handler: async ({ wallet }: GetSolanaBalanceArgs) => {
-        const connection = createSolanaPublicClient();
-        const publicKey = new PublicKey(wallet);
-        const balance = await connection.getBalance(publicKey);
-        // Convert lamports to SOL (1 SOL = 1,000,000,000 lamports)
-        return (balance / 1_000_000_000).toString();
+        return await getPhantomWalletBalance();
     }
 } 

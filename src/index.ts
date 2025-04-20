@@ -37,9 +37,15 @@ async function chat(thread: Thread, assistant: Assistant): Promise<void> {
 
             const run = await createRun(client, thread, assistant.id);
             console.log(`Creating run with assistant ${assistant.id} for thread ${thread.id}`)
-            const result = await performRun(run, client, thread);
+            
+            // Fournir un contexte minimal pour la cohérence
+            const runContext = {
+                threadId: thread.id
+            };
+            
+            const result = await performRun(run, client, thread, runContext);
 
-            if (result?.type === 'text') {
+            if (result && result.text) {
                 console.log('\nLucy: ', result.text.value);
             }
 

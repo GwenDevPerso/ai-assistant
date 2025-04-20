@@ -1,7 +1,7 @@
 import {createSolanaWalletClient} from '../../solana/createSolanaWalletClient.js';
 import {ToolConfig} from '../allTools.js';
 
-export const getSolanaWalletAddressTool: ToolConfig<{}> = {
+export const getSolanaWalletAddressTool: ToolConfig<{}, { walletAddress?: string }> = {
     definition: {
         type: 'function',
         function: {
@@ -14,8 +14,15 @@ export const getSolanaWalletAddressTool: ToolConfig<{}> = {
             },
         },
     },
-    handler: async () => {
+    handler: async (args, context) => {
+        // Return user wallet address if available in context
+        if (context?.walletAddress) {
+            return context.walletAddress;
+        }
+        
+        // Fallback to server wallet
         const wallet = createSolanaWalletClient();
+        // La publicKey est garantie grâce au type de retour de createSolanaWalletClient
         return wallet.publicKey.toString();
     }
 }; 

@@ -1,12 +1,23 @@
 import OpenAI from 'openai';
-import {Run} from 'openai/resources/beta/threads/runs/runs';
-import {Thread} from 'openai/resources/beta/threads/threads';
-import {tools} from '../tools/allTools.js';
+import { Run } from 'openai/resources/beta/threads/runs/runs';
+import { Thread } from 'openai/resources/beta/threads/threads';
+import { ToolContext, tools } from '../tools/allTools.js';
 
 export async function handleRunToolCalls(run: Run, client: OpenAI, thread: Thread) {
     const toolCalls = run.required_action?.submit_tool_outputs?.tool_calls;
 
     if (!toolCalls) return run;
+
+    // Extract context from run metadata if available
+    const context: ToolContext = {};
+    
+    // Extract wallet address from run metadata if available
+    if (run.metadata && typeof run.metadata === 'object') {
+        if ('walletAddress' in run.metadata && run.metadata.walletAddress) {
+            context.walletAddress = run.metadata.walletAddress as string;
+            console.log(`Using wallet address from context: ${context.walletAddress}`);
+        }
+    }
 
     const toolOutputs = await Promise.all(
         toolCalls.map(async (tool) => {
@@ -20,7 +31,7 @@ export async function handleRunToolCalls(run: Run, client: OpenAI, thread: Threa
 
             try {
                 const args = JSON.parse(tool.function.arguments);
-                const output = await toolConfig.handler(args);
+                const output = await toolConfig.handler(args, context);
 
                 console.log(`Tool ${tool.function.name} returned ${output}`)
 
