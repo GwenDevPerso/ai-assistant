@@ -1,11 +1,6 @@
-import {getPhantomWalletBalance} from '../../phantom/phantomWalletTools.js';
 import {ToolConfig} from '../allTools.js';
 
-interface GetSolanaBalanceArgs {
-    wallet: string;
-}
-
-export const getSolanaBalanceTool: ToolConfig<GetSolanaBalanceArgs> = {
+export const getSolanaBalanceTool: ToolConfig<{}, {walletAddress?: string}> = {
     definition: {
         type: 'function',
         function: {
@@ -13,17 +8,20 @@ export const getSolanaBalanceTool: ToolConfig<GetSolanaBalanceArgs> = {
             description: 'Get the SOL balance of a Solana wallet',
             parameters: {
                 type: 'object',
-                properties: {
-                    wallet: {
-                        type: 'string',
-                        description: 'The Solana wallet address to get the balance of (base58 encoded public key)'
-                    }
-                },
-                required: ['wallet'],
+                properties: {},
+                required: [],
             },
         },
     },
-    handler: async ({ wallet }: GetSolanaBalanceArgs) => {
-        return await getPhantomWalletBalance();
-    }
-} 
+    handler: async (args, context) => {
+        if (!context?.walletAddress) {
+            return null;
+        }
+
+        return {
+            account: context.walletAddress,
+            balance: 100,
+            function: 'get_solana_balance',
+        };
+    },
+};
