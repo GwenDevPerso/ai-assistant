@@ -1,7 +1,9 @@
+import {buyTokenTool} from "./solana/buyTokenTool.js";
 import {getSolanaBalanceTool} from "./solana/getSolanaBalance.js";
 import {getSolanaWalletAddressTool} from "./solana/getSolanaWalletAddress.js";
+import {listMyTokensTool} from "./solana/listMyTokensTool.js";
+import {listTopTokenTool} from "./solana/listTopToken.js";
 import {sendSolanaTransactionTool} from "./solana/sendSolanaTransaction.js";
-
 // Define the base context interface
 export interface ToolContext {
     walletAddress?: string;
@@ -34,5 +36,7 @@ export const tools: Record<string, ToolConfig> = {
     get_solana_balance: getSolanaBalanceTool,
     get_solana_wallet_address: getSolanaWalletAddressTool,
     send_solana_transaction: sendSolanaTransactionTool,
-    
+    list_top_token: listTopTokenTool,
+    buy_token: buyTokenTool,
+    list_my_tokens: listMyTokensTool,
 } 

@@ -1,10 +1,12 @@
 import OpenAi from 'openai';
 import {RequiredActionFunctionToolCall, Run} from 'openai/resources/beta/threads/runs/runs';
 import {Thread} from 'openai/resources/beta/threads/threads';
+import {buyTokenTool} from '../tools/solana/buyTokenTool.js';
 import {getSolanaBalanceTool} from '../tools/solana/getSolanaBalance.js';
 import {getSolanaWalletAddressTool} from '../tools/solana/getSolanaWalletAddress.js';
+import {listMyTokensTool} from '../tools/solana/listMyTokensTool.js';
+import {listTopTokenTool} from '../tools/solana/listTopToken.js';
 import {sendSolanaTransactionTool} from '../tools/solana/sendSolanaTransaction.js';
-
 // Étendre notre type ThreadMessage pour qu'il soit compatible avec la façon dont nous l'utilisons
 export type ThreadMessage = {
     id: string;
@@ -151,6 +153,12 @@ async function handleToolCall(toolCall: RequiredActionFunctionToolCall, context?
             return await getSolanaWalletAddressTool.handler(parsedArgs, context);
         } else if (name === 'get_solana_balance') {
             return await getSolanaBalanceTool.handler(parsedArgs, context);
+        } else if (name === 'list_top_token') {
+            return await listTopTokenTool.handler(parsedArgs, context);
+        } else if (name === 'buy_token') {
+            return await buyTokenTool.handler(parsedArgs, context);
+        } else if (name === 'list_my_tokens') {
+            return await listMyTokensTool.handler(parsedArgs, context);
         }
 
         // Default response for unknown tools

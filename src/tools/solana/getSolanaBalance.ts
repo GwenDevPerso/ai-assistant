@@ -20,7 +20,7 @@ export const getSolanaBalanceTool: ToolConfig<{}, {walletAddress?: string}> = {
 
         return {
             account: context.walletAddress,
-            balance: 100,
+            balance: NaN,
             function: 'get_solana_balance',
         };
     },

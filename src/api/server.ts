@@ -221,7 +221,10 @@ class RouteHandlers {
                 connection: publicKey.toString(),
             };
         } catch (error) {
-            throw new Error('Failed to connect wallet');
+            return {
+                message: 'Failed to connect wallet',
+                connection: '',
+            }
         }
     }
 
