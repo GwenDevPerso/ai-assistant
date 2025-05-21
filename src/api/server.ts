@@ -10,7 +10,7 @@ import {performRun} from '../openai/performRun.js';
 import {sendSolanaTransactionTool} from '../tools/solana/sendSolanaTransaction.js';
 
 // Types definitions
-interface ThreadStore {
+type ThreadStore = {
     [key: string]: {
         thread: Thread;
         assistant: Assistant;
@@ -18,21 +18,23 @@ interface ThreadStore {
         walletConnected?: boolean;
         lastTransactionData?: any; // Pour stocker les données de transaction les plus récentes
     };
-}
+};
 
-interface MessageRequest {
-    message: string;
-    walletAddress?: string;
-}
+type SwapTransaction = {
+    transaction: string;
+    token: string;
+    amount: number;
+};
 
-interface PhantomConnectRequest {
-    publicKey: string;
-    conversationId: string;
-}
-
-interface ConversationIdRequest {
-    conversationId: string;
-}
+type APIResponse = {
+    response: string;
+    status: string;
+    tool: string;
+    swapTransaction?: SwapTransaction;
+    transactionData?: any;
+    hasTransaction?: boolean;
+    hasSwapTransaction?: boolean;
+};
 
 // Initialize Express app and OpenAI client
 const client = new OpenAi();
@@ -161,7 +163,11 @@ class RouteHandlers {
             console.log('Result:', result);
 
             // Préparer la réponse avec les données potentielles de transaction
-            const responseData: any = {};
+            const responseData: APIResponse = {
+                response: '',
+                status: '',
+                tool: '',
+            };
 
             if (result && result.text) {
                 responseData.response = result.text.value;
@@ -171,9 +177,42 @@ class RouteHandlers {
 
             if (result && result.tool) {
                 responseData.tool = result.tool;
+
+                // Vérifier si l'outil utilisé est buy_token et ajouter les données de swap transaction
+                if (result.tool === 'buy_token') {
+                    // Pour debug, afficher l'objet result complet
+                    console.log('Buy token result:', JSON.stringify(result, null, 2));
+
+                    // Récupérer la valeur du premier message (qui contient généralement la réponse formatée)
+                    const lastRunSteps = await client.beta.threads.runs.steps.list(thread.id, result.run_id, {
+                        order: 'desc',
+                    });
+
+                    for (const step of lastRunSteps.data) {
+                        if (
+                            step.step_details.type === 'tool_calls' &&
+                            step.step_details.tool_calls[0].type === 'function' &&
+                            step.step_details.tool_calls[0].function.name === 'buy_token'
+                        ) {
+                            try {
+                                if (step.step_details.tool_calls[0].function.output) {
+                                    const outputData = JSON.parse(step.step_details.tool_calls[0].function.output);
+                                    if (outputData && outputData.data) {
+                                        responseData.swapTransaction = outputData.data;
+                                        responseData.hasSwapTransaction = true;
+                                        console.log(`Swap transaction data extracted: ${outputData.data}`);
+                                        break;
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('Error parsing buy_token output:', err);
+                            }
+                        }
+                    }
+                }
             }
 
-            console.log("Response data", conversation);
+            console.log('Response data', conversation);
 
             // Vérifier si une transaction a été déclenchée pendant cette exécution
             if (conversation.lastTransactionData) {
@@ -185,13 +224,12 @@ class RouteHandlers {
                 conversation.lastTransactionData = undefined;
 
                 console.log(`Transaction data detected and returned to frontend for conversation ${conversationId}`);
-
-                res.status(200).json(responseData);
             } else {
                 // Pas de transaction détectée
                 responseData.hasTransaction = false;
-                res.status(200).json(responseData);
             }
+
+            res.status(200).json(responseData);
         } catch (error) {
             handleError(res, error, 'Failed to process message');
         }
@@ -224,7 +262,7 @@ class RouteHandlers {
             return {
                 message: 'Failed to connect wallet',
                 connection: '',
-            }
+            };
         }
     }
 

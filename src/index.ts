@@ -1,13 +1,13 @@
 import "dotenv/config";
 import OpenAi from "openai";
-import {Assistant} from 'openai/resources/beta/assistants';
-import {Thread} from 'openai/resources/beta/threads/threads';
+import { Assistant } from 'openai/resources/beta/assistants';
+import { Thread } from 'openai/resources/beta/threads/threads';
 import readline from 'readline';
-import {startServer} from "./api/server.js";
-import {createAssistant} from "./openai/createAssistant.js";
-import {createRun} from "./openai/createRun.js";
-import {createThread} from './openai/createThread.js';
-import {performRun} from "./openai/performRun.js";
+import { startServer } from "./api/server.js";
+import { createAssistant } from "./openai/createAssistant.js";
+import { createRun } from "./openai/createRun.js";
+import { createThread } from './openai/createThread.js';
+import { performRun } from "./openai/performRun.js";
 
 const client = new OpenAi();
 

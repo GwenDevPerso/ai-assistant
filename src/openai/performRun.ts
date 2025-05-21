@@ -121,7 +121,6 @@ async function handleRequiredAction(
     for (const toolCall of toolCalls) {
         const functionCall = toolCall as RequiredActionFunctionToolCall;
         const output = await handleToolCall(functionCall, context);
-        console.log('Output:', output);
 
         toolOutputs.push({
             tool_call_id: toolCall.id,
@@ -153,7 +152,7 @@ async function handleToolCall(toolCall: RequiredActionFunctionToolCall, context?
             return await getSolanaWalletAddressTool.handler(parsedArgs, context);
         } else if (name === 'get_solana_balance') {
             return await getSolanaBalanceTool.handler(parsedArgs, context);
-        } else if (name === 'list_top_token') {
+        } else if (name === 'list_top_trending_tokens') {
             return await listTopTokenTool.handler(parsedArgs, context);
         } else if (name === 'buy_token') {
             return await buyTokenTool.handler(parsedArgs, context);
